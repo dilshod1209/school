@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Talaba ma'lumotlari",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "registeredAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      },
+      "required": ["name", "phone", "status"]
+    },
+    "Teacher": {
+      "title": "Teacher",
+      "description": "O'qituvchi ma'lumotlari",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "salary": { "type": "number" }
+      },
+      "required": ["name", "phone", "subject"]
+    },
+    "Group": {
+      "title": "Group",
+      "description": "O'quv guruhi",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "startTime": { "type": "string" },
+        "days": { "type": "array", "items": { "type": "string" } },
+        "price": { "type": "number" }
+      },
+      "required": ["name", "subject", "teacherId", "price"]
+    },
+    "Enrollment": {
+      "title": "Enrollment",
+      "description": "Talabaning guruhga a'zoligi",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "groupId": { "type": "string" },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentId", "groupId"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Guruh davomati",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "attendedIds": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["date", "attendedIds"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "To'lov ma'lumotlari",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "groupId": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" },
+        "month": { "type": "string", "description": "YYYY-MM formatida" }
+      },
+      "required": ["studentId", "groupId", "amount", "month"]
+    }
+  },
+  "firestore": {
+    "/students/{studentId}": { "schema": "Student", "description": "Barcha talabalar" },
+    "/teachers/{teacherId}": { "schema": "Teacher", "description": "Barcha o'qituvchilar" },
+    "/groups/{groupId}": { "schema": "Group", "description": "O'quv guruhlari" },
+    "/groups/{groupId}/enrollments/{studentId}": { "schema": "Enrollment", "description": "Guruhdagi talabalar" },
+    "/groups/{groupId}/attendance/{attendanceId}": { "schema": "Attendance", "description": "Guruh davomati" },
+    "/payments/{paymentId}": { "schema": "Payment", "description": "Barcha to'lovlar" }
+  }
+}
