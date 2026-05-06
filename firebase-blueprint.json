@@ -73,6 +73,17 @@
         "month": { "type": "string", "description": "YYYY-MM formatida" }
       },
       "required": ["studentId", "groupId", "amount", "month"]
+    },
+    "User": {
+      "title": "User",
+      "description": "System user (admin/staff)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "staff"] }
+      },
+      "required": ["name", "phone", "role"]
     }
   },
   "firestore": {
@@ -81,6 +92,7 @@
     "/groups/{groupId}": { "schema": "Group", "description": "O'quv guruhlari" },
     "/groups/{groupId}/enrollments/{studentId}": { "schema": "Enrollment", "description": "Guruhdagi talabalar" },
     "/groups/{groupId}/attendance/{attendanceId}": { "schema": "Attendance", "description": "Guruh davomati" },
-    "/payments/{paymentId}": { "schema": "Payment", "description": "Barcha to'lovlar" }
+    "/payments/{paymentId}": { "schema": "Payment", "description": "Barcha to'lovlar" },
+    "/users/{userId}": { "schema": "User", "description": "System users" }
   }
 }

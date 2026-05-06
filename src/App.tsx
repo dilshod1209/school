@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { auth, loginWithGoogle, logout, onAuthStateChanged, type User } from './lib/firebase';
+import { auth, db, doc, getDoc, logout, onAuthStateChanged, type User } from './lib/firebase';
 import { 
   Users, 
   UserSquare2, 
@@ -14,6 +14,10 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
+import { SystemUser } from './types';
+
+// Components
+import Auth from './components/Auth';
 
 // Views
 import Dashboard from './components/views/Dashboard';
@@ -25,17 +29,34 @@ import Attendance from './components/views/Attendance';
 
 type View = 'dashboard' | 'students' | 'teachers' | 'groups' | 'payments' | 'attendance';
 
-export const AuthContext = createContext<{ user: User | null; loading: boolean }>({ user: null, loading: true });
+export const AuthContext = createContext<{ user: User | null; profile: SystemUser | null; loading: boolean }>({ 
+  user: null, 
+  profile: null, 
+  loading: true 
+});
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<SystemUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      if (u) {
+        try {
+          const profileDoc = await getDoc(doc(db, 'users', u.uid));
+          if (profileDoc.exists()) {
+            setProfile({ uid: u.uid, ...profileDoc.data() } as SystemUser);
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        }
+      } else {
+        setProfile(null);
+      }
       setLoading(false);
     });
     return unsubscribe;
@@ -55,20 +76,7 @@ export default function App() {
   }
 
   if (!user) {
-    return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#FDFCFB] p-4 text-center">
-        <GraduationCap className="w-16 h-16 text-indigo-600 mb-6" />
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2 font-sans">Edu-Manage</h1>
-        <p className="text-gray-500 mb-8 max-w-sm">O'quv markazini boshqarishning eng oson va zamonaviy usuli.</p>
-        <button 
-          onClick={loginWithGoogle}
-          className="flex items-center gap-3 px-8 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all font-medium text-gray-700 cursor-pointer"
-        >
-          <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-          Google orqali kirish
-        </button>
-      </div>
-    );
+    return <Auth />;
   }
 
   const menuItems = [
@@ -81,7 +89,7 @@ export default function App() {
   ];
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, profile, loading }}>
       <div className="flex h-screen bg-[#F8F9FA] text-slate-900 font-sans">
         {/* Mobile menu toggle */}
         <button 
@@ -103,7 +111,7 @@ export default function App() {
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0">
                 <GraduationCap size={24} />
               </div>
-              {isSidebarOpen && <span className="font-bold text-xl tracking-tight">Edu-Manage</span>}
+              {isSidebarOpen && <span className="font-bold text-xl tracking-tight text-slate-900">Edu-Manage</span>}
             </div>
 
             <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
@@ -126,11 +134,11 @@ export default function App() {
 
             <div className="p-4 border-t border-gray-100">
                <div className={cn("flex items-center gap-3 mb-4", !isSidebarOpen && "justify-center")}>
-                 <img src={user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName} className="w-8 h-8 rounded-full border border-gray-100" />
+                 <img src={`https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`} className="w-8 h-8 rounded-full border border-gray-100" />
                  {isSidebarOpen && (
                    <div className="overflow-hidden">
-                     <p className="text-sm font-semibold truncate">{user.displayName}</p>
-                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                     <p className="text-sm font-semibold truncate text-slate-900">{user.displayName || 'Foydalanuvchi'}</p>
+                     <p className="text-xs text-gray-500 truncate">{profile?.phone || user.email}</p>
                    </div>
                  )}
                </div>
@@ -155,7 +163,7 @@ export default function App() {
               <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
                 {menuItems.find(m => m.id === activeView)?.label}
               </h1>
-              <p className="text-slate-500 mt-1">Hush kelibsiz, {user.displayName?.split(' ')[0]}</p>
+              <p className="text-slate-500 mt-1">Hush kelibsiz, {user.displayName?.split(' ')[0] || 'Foydalanuvchi'}</p>
             </div>
           </header>
 

@@ -1,5 +1,15 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut, 
+  onAuthStateChanged, 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+  type User 
+} from 'firebase/auth';
 import { 
   getFirestore, 
   doc, 
@@ -27,6 +37,18 @@ export const googleProvider = new GoogleAuthProvider();
 // Standard login
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const logout = () => signOut(auth);
+
+// Helper to use phone as email for Firebase Auth
+export const phoneToEmail = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  return `${cleanPhone}@edu-manage.com`;
+};
+
+export { 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
+};
 
 // --- Error Handling ---
 export enum OperationType {

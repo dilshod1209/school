@@ -57,3 +57,10 @@ export interface DashboardStats {
   monthlyRevenue: number;
   debtsCount: number;
 }
+
+export interface SystemUser {
+  uid: string;
+  name: string;
+  phone: string;
+  role: 'admin' | 'staff';
+}
