@@ -28,8 +28,6 @@ export const googleProvider = new GoogleAuthProvider();
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const logout = () => signOut(auth);
 
-export { onAuthStateChanged, type User };
-
 // --- Error Handling ---
 export enum OperationType {
   CREATE = 'create',
@@ -79,5 +77,7 @@ export {
   getDoc,
   onSnapshot,
   Timestamp,
-  serverTimestamp 
+  serverTimestamp,
+  onAuthStateChanged,
+  type User
 };

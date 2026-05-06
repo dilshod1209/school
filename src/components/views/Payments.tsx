@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { db, collection, getDocs, addDoc, serverTimestamp } from '../../lib/firebase';
 import { Payment, Student, Group, Enrollment } from '../../types';
 import { CreditCard, Plus, Search, AlertCircle, CheckCircle2, TrendingUp, Calendar } from 'lucide-react';
@@ -57,7 +57,7 @@ export default function Payments() {
     }
   }
 
-  async function handleAddPayment(e: React.FormEvent) {
+  async function handleAddPayment(e: FormEvent) {
     e.preventDefault();
     try {
       if (!formData.studentId || !formData.groupId || formData.amount <= 0) {
